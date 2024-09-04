@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App - Easy Tutorials</title>
+    <link rel="stylesheet" href="style1.css">
+</head>
+<body>
+    <div class="card">
+        <div class="search">
+            <input type="text" id="city-input" placeholder="Enter city name" spellcheck="false">
+            <button><img src="search.png" alt="Search"></button>
+            <div id="autocomplete-list" class="autocomplete-items"></div>
+        </div>
+        <div class="weather">
+            <div id="weather-icon" class="weather-icon">🌧️</div>
+            <h1 id="temp">22°C</h1>
+            <h2 id="city">New York</h2>
+            <div class="details">
+                <div class="col">
+                    <div class="emoji">💧</div>
+                    <div>
+                        <p id="humidity" class="humidity">50%</p>
+                        <p>Humidity</p>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="emoji">🌬️</div>
+                    <div>
+                        <p id="wind-speed" class="wind">15 km/h</p>
+                        <p>Wind Speed</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const apiKey = "73ef5612493058c0398544472d15c581";
+        const apiUrl = "https://api.openweathermap.org/data/2.5/weather";
+        const cities = ["Ahmedabad", "Amsterdam", "Athens", "Bangalore", "Bangkok","Barcelona", "Beijing", "Berlin", "Bogotá", "Brussels","Buenos Aires", "Cairo", "Cape Town", "Caracas", "Chennai","Chicago", "Copenhagen", "Dallas", "Delhi", "Dubai","Dublin", "Frankfurt", "Geneva", "Hanoi", "Helsinki","Hong Kong", "Hyderabad", "Istanbul", "Jakarta", "Jerusalem","Johannesburg", "Kolkata", "Kuala Lumpur", "Kyoto", "Lisbon","London", "Los Angeles", "Madrid", "Manila", "Mexico City","Milan", "Moscow", "Mumbai", "Nairobi", "New Delhi","New York", "Oslo", "Paris", "Prague", "Pune","Rio de Janeiro", "Rome", "Seoul", "Shanghai", "Singapore","Stockholm", "Sydney", "Tokyo", "Toronto", "Vienna","Warsaw", "Zurich"
+]; // Example cities
+
+        document.getElementById('city-input').addEventListener('input', function() {
+            const input = this.value.toLowerCase();
+            const autocompleteList = document.getElementById('autocomplete-list');
+            autocompleteList.innerHTML = '';
+            if (input) {
+                const filteredCities = cities.filter(city => city.toLowerCase().includes(input));
+                filteredCities.forEach(city => {
+                    const div = document.createElement('div');
+                    div.textContent = city;
+                    div.addEventListener('click', function() {
+                        document.getElementById('city-input').value = city;
+                        autocompleteList.innerHTML = '';
+                        fetchWeather(city);
+                    });
+                    autocompleteList.appendChild(div);
+                });
+            }
+        });
+
+        async function fetchWeather(city) {
+            const response = await fetch(`${apiUrl}?q=${city}&units=metric&appid=${apiKey}`);
+            const data = await response.json();
+            if (response.ok) {
+                document.getElementById('temp').textContent = `${data.main.temp}°C`;
+                document.getElementById('city').textContent = data.name;
+                document.getElementById('humidity').textContent = `${data.main.humidity}%`;
+                document.getElementById('wind-speed').textContent = `${data.wind.speed} km/h`;
+                document.getElementById('weather-icon').textContent = getWeatherIcon(data.weather[0].main);
+            } else {
+                alert('City not found');
+            }
+        }
+
+        function getWeatherIcon(weather) {
+            switch (weather) {
+                case 'Clear':
+                    return '☀️';
+                case 'Clouds':
+                    return '☁️';
+                case 'Rain':
+                    return '🌧️';
+                case 'Snow':
+                    return '❄️';
+                case 'Thunderstorm':
+                    return '⛈️';
+                default:
+                    return '🌈';
+            }
+        }
+
+        document.querySelector('button').addEventListener('click', function() {
+            const city = document.getElementById('city-input').value;
+            if (city) {
+                fetchWeather(city);
+            }
+        });
+    </script>
+</body>
+</html>
